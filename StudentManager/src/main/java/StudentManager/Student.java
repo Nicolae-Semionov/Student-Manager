@@ -11,6 +11,31 @@ public class Student implements Comparable<Student>{
 		id = num;
 	}
 	
+	public Student(String f, String l, String num) {
+		first = f;
+		last = l;
+		
+		for(int i = 0; i < num.length(); i++) {
+			id += (num.charAt(num.length() - i - 1) - 48) * Math.pow(10, i);
+		}
+			
+	}
+	
+	public String getFirst() {
+		String out = first;
+		return out;
+	}
+	
+	public String getLast() {
+		String out = last;
+		return out;
+	}
+	
+	public String getID() {
+		String out = "" + id;
+		return out;
+	}
+	
 	public String name() {
 		return first + " " + last;
 	}
