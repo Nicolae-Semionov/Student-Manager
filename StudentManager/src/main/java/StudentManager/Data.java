@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Data {
 
-	public static ArrayList<Student> load(String path) {
-		ArrayList out = new ArrayList<Student>();
+	public static Map<String, Student> load(String path) {
+		Map out = new HashMap<String, Student>();
 		
 		int i = 0;
 		int j;
@@ -36,7 +36,7 @@ public class Data {
 				
 				//System.out.println(f + ", " + l + ", " + n);
 				
-				out.add(new Student(f, l, n));
+				out.put(n, new Student(f, l, n));
 				
 				i++;
 				// read next line
@@ -50,12 +50,11 @@ public class Data {
 		return out;
 	}
 	
-	public static void save(ArrayList<Student> Students, String Path) {
+	public static void save(Map<String, Student> Students, String Path) {
 		
 		try {
 		      FileWriter myWriter = new FileWriter(Path);
-		      for(int i = 0; i < Students.size(); i++) {
-		    	  Student s = Students.get(i);
+		      for(Student s : Students.values()) {
 		    	  myWriter.write(s.getFirst() + " " + s.getLast() + " " + s.getID() + "\n");
 		      }
 		      myWriter.close();
