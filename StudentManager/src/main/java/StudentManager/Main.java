@@ -7,7 +7,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.*;
 
@@ -16,6 +18,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	Button loadBtn;
 	Button saveBtn;
+	Label dataLabel;
 	Map Students = new HashMap<String, Student>();
 	
 	
@@ -30,10 +33,11 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		primaryStage.setTitle("Student Manager");
 		loadBtn = new Button("Load");
 		saveBtn = new Button("Save");
+		dataLabel = new Label();
 		
-		StackPane layout = new StackPane();
+		VBox layout = new VBox(20);
 
-		layout.getChildren().add(loadBtn);
+		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel);
 		//layout.getChildren().add(saveBtn);
 		
 		loadBtn.setOnAction(this);
@@ -56,10 +60,12 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		if(event.getSource() == loadBtn) {
 			System.out.println("loading");
 			Students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			dataLabel.setText("Succesfully loaded " + Students.size() + " students");
 		}
 		if(event.getSource() == saveBtn) {
 			System.out.println("saving");
 			Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			dataLabel.setText("Succesfully saved " + Students.size() + " students");
 		}
 		
 		
