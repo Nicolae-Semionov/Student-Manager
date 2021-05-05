@@ -8,16 +8,25 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 import java.util.*;
 
 public class Main extends Application implements EventHandler<ActionEvent> {
 	
-	
+	boolean unsaved = false;
+	Stage window;
 	Button loadBtn;
 	Button saveBtn;
+	Button addBtn;
+	TextField fnameText;
+	TextField lnameText;
+	TextField numText;
+	int numAt = 1;
 	Label dataLabel;
 	Map Students = new HashMap<String, Student>();
 	
@@ -30,24 +39,39 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setTitle("Student Manager");
+		window = primaryStage;
+		window.setTitle("Student Manager");
+		
+		// Buttons
 		loadBtn = new Button("Load");
 		saveBtn = new Button("Save");
+		addBtn = new Button("Add");
+		
+		
+		// TextFields
+		fnameText = new TextField();
+		fnameText.setPromptText("first name");
+		lnameText = new TextField();
+		lnameText.setPromptText("last name");
+		numText = new TextField();
+		numText.setPromptText("student number");
+		
 		dataLabel = new Label();
 		
 		VBox layout = new VBox(20);
 
-		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel);
+		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText);
 		//layout.getChildren().add(saveBtn);
 		
 		loadBtn.setOnAction(this);
 		saveBtn.setOnAction(this);
+		addBtn.setOnAction(this);
 		
 		Scene scene = new Scene(layout, 300, 250);
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		window.setScene(scene);
+		window.show();
 		
-		
+		window.setOnCloseRequest(e -> closeProgram());
 		
 		
 //		Students.add(new Student("Jimmy", "Bones", 345));
@@ -55,20 +79,65 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 	}
 
+	private void closeProgram() {
+		
+		if(unsaved) {
+			
+			boolean save = ConfirmSaveExit.display();
+			
+			if(save) {
+				System.out.println("saving");
+				Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			}
+			
+		}
+		
+		window.close();
+	}
+
 	@Override
 	public void handle(ActionEvent event) {
 		if(event.getSource() == loadBtn) {
 			System.out.println("loading");
 			Students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			numAt += Students.size();
 			dataLabel.setText("Succesfully loaded " + Students.size() + " students");
 		}
 		if(event.getSource() == saveBtn) {
 			System.out.println("saving");
 			Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
 			dataLabel.setText("Succesfully saved " + Students.size() + " students");
+			unsaved = false;
+		}
+		if(event.getSource() == addBtn) {
+			String f = fnameText.getText();
+			String l = lnameText.getText();
+			
+			Student s = new Student(f, l, numAt);
+			numAt++;
+			
+			System.out.println("adding " + s);
+			Students.put(numAt, s);
+			unsaved = true;
+			dataLabel.setText("Succesfully added " + s);
 		}
 		
 		
+	}
+	
+	public boolean isInt(String a) {
+		
+		boolean is = true;
+		
+		try {
+			int b = Integer.parseInt(a);
+		}
+		catch(NumberFormatException e) {
+			System.out.println(a + " is not an integer");
+			is = false;
+		}
+		
+		return is;
 	}
 	
 	
