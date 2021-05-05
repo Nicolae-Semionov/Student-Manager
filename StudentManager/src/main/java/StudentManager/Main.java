@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -19,15 +20,21 @@ import java.util.*;
 public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	boolean unsaved = false;
+	int numAt = 0;
+	
 	Stage window;
+	
 	Button loadBtn;
 	Button saveBtn;
 	Button addBtn;
+	
 	TextField fnameText;
 	TextField lnameText;
 	TextField numText;
-	int numAt = 1;
+	
 	Label dataLabel;
+	
+	ListView<Student> studentList = new ListView<>();
 	Map Students = new HashMap<String, Student>();
 	
 	
@@ -59,8 +66,9 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		dataLabel = new Label();
 		
 		VBox layout = new VBox(20);
+		layout.setMinSize(400, 200);
 
-		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText);
+		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, studentList);
 		//layout.getChildren().add(saveBtn);
 		
 		loadBtn.setOnAction(this);
@@ -69,6 +77,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		Scene scene = new Scene(layout, 300, 250);
 		window.setScene(scene);
+		window.setHeight(600);
 		window.show();
 		
 		window.setOnCloseRequest(e -> closeProgram());
@@ -99,14 +108,21 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	public void handle(ActionEvent event) {
 		if(event.getSource() == loadBtn) {
 			System.out.println("loading");
+			
 			Students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			numAt += Students.size();
+			numAt = Students.size();
+			
 			dataLabel.setText("Succesfully loaded " + Students.size() + " students");
+			
+			studentList.getItems().addAll(Students.values());
 		}
 		if(event.getSource() == saveBtn) {
 			System.out.println("saving");
+			
 			Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			
 			dataLabel.setText("Succesfully saved " + Students.size() + " students");
+			
 			unsaved = false;
 		}
 		if(event.getSource() == addBtn) {
@@ -118,10 +134,13 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			
 			System.out.println("adding " + s);
 			Students.put(numAt, s);
+			
 			unsaved = true;
+			
 			dataLabel.setText("Succesfully added " + s);
+			
+			studentList.getItems().add(s);
 		}
-		
 		
 	}
 	
