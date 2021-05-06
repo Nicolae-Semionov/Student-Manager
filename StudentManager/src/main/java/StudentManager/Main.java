@@ -92,7 +92,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		if(unsaved) {
 			
-			boolean save = ConfirmSaveExit.display();
+			boolean save = ConfirmBox.display("You have unsaved changes, save before exiting?");
 			
 			if(save) {
 				System.out.println("saving");

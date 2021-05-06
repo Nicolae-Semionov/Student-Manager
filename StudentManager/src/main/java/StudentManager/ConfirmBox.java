@@ -8,16 +8,16 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ConfirmSaveExit {
+public class ConfirmBox {
 	
 	static boolean answer = false;
 	static Stage window = new Stage();
 	
-	public static boolean display() {
+	public static boolean display(String message) {
 		
 		window.initModality(Modality.APPLICATION_MODAL); // this line wont allow user to exit unless they pick an option
 		window.setTitle("Student Manager");
-		Label label = new Label("You have unsaved changes, save before exiting?");
+		Label label = new Label(message);
 		Button yesBtn = new Button("Yes");
 		Button noBtn = new Button("No");
 		
