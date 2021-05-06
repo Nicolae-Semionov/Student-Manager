@@ -34,7 +34,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	Label dataLabel;
 	
-	
+	AlertBox alert = new AlertBox();
+	ConfirmBox confirm = new ConfirmBox();
 	
 	ListView<Student> studentList = new ListView<>();
 	Map Students = new HashMap<String, Student>();
@@ -50,8 +51,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		AlertBox.initialize();
-		ConfirmBox.initialize();
+		alert.initialize();
+		confirm.initialize();
 		
 		window = primaryStage;
 		window.setTitle("Student Manager");
@@ -99,7 +100,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		if(unsaved) {
 			
-			boolean save = ConfirmBox.display("You have unsaved changes, save before exiting?");
+			boolean save = confirm.display("You have unsaved changes, save before exiting?");
 			
 			if(save) {
 				System.out.println("saving");
@@ -113,7 +114,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
 	@Override
 	public void handle(ActionEvent event) {
-		if(event.getSource() == loadBtn) {
+		if(event.getSource() == loadBtn) {  // LOAD
 			System.out.println("loading");
 			
 			Students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
@@ -123,7 +124,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			
 			studentList.getItems().addAll(Students.values());
 		}
-		if(event.getSource() == saveBtn) {
+		if(event.getSource() == saveBtn) { // SAVE
 			System.out.println("saving");
 			
 			Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
@@ -132,7 +133,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			
 			unsaved = false;
 		}
-		if(event.getSource() == addBtn) {
+		if(event.getSource() == addBtn) { // ADD
 			String f  = fnameText.getText();
 			String l = lnameText.getText();
 			
@@ -147,16 +148,24 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			}
 			else{
 				Student s = new Student(f, l, numAt);
-				numAt++;
 				
-				System.out.println("adding " + s);
-				Students.put(numAt, s);
+				boolean add = true;
+				if(exists(Students, s))
+					add = confirm.display(s.name() + " already exists, add anyway?");
 				
-				unsaved = true;
+				if(add) {
+					numAt++;
+					
+					System.out.println("adding " + s);
+					Students.put(numAt, s);
+					
+					unsaved = true;
+					
+					dataLabel.setText("Succesfully added " + s);
+					
+					studentList.getItems().add(s);
+				}
 				
-				dataLabel.setText("Succesfully added " + s);
-				
-				studentList.getItems().add(s);
 			}
 			
 		}
@@ -186,6 +195,16 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		}
 			
 		return true;
+	}
+	
+	public boolean exists(Map<String, Student> Students, Student g) {
+		
+		for(Student s : Students.values()) {
+			if(g.name().equals(s.name()))
+				return true;
+	    }
+		
+		return false;
 	}
 	
 	
