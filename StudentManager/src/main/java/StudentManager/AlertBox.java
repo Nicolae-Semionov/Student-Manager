@@ -11,12 +11,15 @@ public class AlertBox {
 
 static Stage window = new Stage();
 	
-	public static void display(String message) {
+	static Label label = new Label();
+	
+	public static void initialize() {
 		
 		window.initModality(Modality.APPLICATION_MODAL); // this line wont allow user to exit unless they pick an option
 		window.setTitle("Student Manager");
-		Label label = new Label(message);
+		
 		Button button = new Button("Ok");
+		
 		
 		button.setOnAction(e -> window.close());
 		
@@ -25,7 +28,11 @@ static Stage window = new Stage();
 		layout.setAlignment(Pos.CENTER);
 		Scene scene = new Scene(layout);
 		window.setScene(scene);
-		window.showAndWait(); // window must close before returning to previous window
 		
+	}
+	
+	public static void display(String message) {
+		label.setText(message);
+		window.showAndWait(); // window must close before returning to previous window
 	}
 }

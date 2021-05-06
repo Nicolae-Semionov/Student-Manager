@@ -13,25 +13,32 @@ public class ConfirmBox {
 	static boolean answer = false;
 	static Stage window = new Stage();
 	
-	public static boolean display(String message) {
-		
+	static Button yesBtn;
+	static Button noBtn;
+	static Label label;
+	
+	public static void initialize() {
 		window.initModality(Modality.APPLICATION_MODAL); // this line wont allow user to exit unless they pick an option
 		window.setTitle("Student Manager");
-		Label label = new Label(message);
-		Button yesBtn = new Button("Yes");
-		Button noBtn = new Button("No");
-		
-		yesBtn.setOnAction(e -> {answer = true; window.close();});
-		noBtn.setOnAction(e -> {answer = false; window.close();});
+		yesBtn = new Button("Yes");
+		noBtn = new Button("No");
+		label = new Label();
 		
 		VBox layout = new VBox(10);
 		layout.getChildren().addAll(label, yesBtn, noBtn);
 		layout.setAlignment(Pos.CENTER);
 		Scene scene = new Scene(layout);
 		window.setScene(scene);
+		
+	}
+	
+	public static boolean display(String message) {
+		label.setText(message);
+		
+		yesBtn.setOnAction(e -> {answer = true; window.close();});
+		noBtn.setOnAction(e -> {answer = false; window.close();});
 		window.showAndWait(); // window must close before returning to previous window
 		
 		return answer;
-		
 	}
 }

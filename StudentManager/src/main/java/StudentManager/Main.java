@@ -34,11 +34,14 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	Label dataLabel;
 	
+	
+	
 	ListView<Student> studentList = new ListView<>();
 	Map Students = new HashMap<String, Student>();
 	
 	
 	public static void main(String[] args) {
+		
 		
 		launch(args);
 		
@@ -46,6 +49,10 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		AlertBox.initialize();
+		ConfirmBox.initialize();
+		
 		window = primaryStage;
 		window.setTitle("Student Manager");
 		
@@ -126,20 +133,32 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			unsaved = false;
 		}
 		if(event.getSource() == addBtn) {
-			String f = fnameText.getText();
+			String f  = fnameText.getText();
 			String l = lnameText.getText();
 			
-			Student s = new Student(f, l, numAt);
-			numAt++;
+			if(!validName(f)) {
+				AlertBox.display(f + " is not a valid first name");
+			}
+			else if(!validName(l)) {
+				AlertBox.display(l + "is not a valid last name");
+			}
+			else if(l.isBlank() || f.isBlank()) {
+				AlertBox.display("Missing Information");
+			}
+			else{
+				Student s = new Student(f, l, numAt);
+				numAt++;
+				
+				System.out.println("adding " + s);
+				Students.put(numAt, s);
+				
+				unsaved = true;
+				
+				dataLabel.setText("Succesfully added " + s);
+				
+				studentList.getItems().add(s);
+			}
 			
-			System.out.println("adding " + s);
-			Students.put(numAt, s);
-			
-			unsaved = true;
-			
-			dataLabel.setText("Succesfully added " + s);
-			
-			studentList.getItems().add(s);
 		}
 		
 	}
@@ -157,6 +176,16 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		}
 		
 		return is;
+	}
+	
+	public boolean validName(String name) {
+
+		for(int i = 0; i < name.length(); i++) {
+			if(!Character.isLetter(name.charAt(i)))
+				return false;
+		}
+			
+		return true;
 	}
 	
 	
