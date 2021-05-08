@@ -3,13 +3,18 @@ package StudentManager;
 import java.io.BufferedReader;
 import java.io.*;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -37,12 +42,11 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	AlertBox alert = new AlertBox();
 	ConfirmBox confirm = new ConfirmBox();
 	
-	ListView<Student> studentList = new ListView<>();
-	Map Students = new HashMap<String, Student>();
+	TableView<Student> studentTable = new TableView<>();
+	Map students = new HashMap<String, Student>();
 	
 	
 	public static void main(String[] args) {
-		
 		
 		launch(args);
 		
@@ -71,12 +75,26 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		numText = new TextField();
 		numText.setPromptText("student number");
 		
+		// Table 
+		TableColumn<Student, String> firstNameColumn = new TableColumn("First Name");
+		firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("first"));
+		
+		TableColumn<Student, String> lastNameColumn = new TableColumn("Last Name");
+		lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("last"));
+		
+		TableColumn<Student, Integer> idColumn = new TableColumn("ID");
+		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+		
+		studentTable.getColumns().addAll(firstNameColumn, lastNameColumn, idColumn);
+		
+		
+		// Layout
 		dataLabel = new Label();
 		
 		VBox layout = new VBox(20);
 		layout.setMinSize(400, 200);
 
-		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, studentList);
+		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, studentTable);
 		//layout.getChildren().add(saveBtn);
 		
 		loadBtn.setOnAction(this);
@@ -104,7 +122,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			
 			if(save) {
 				System.out.println("saving");
-				Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+				Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
 			}
 			
 		}
@@ -114,26 +132,33 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
 	@Override
 	public void handle(ActionEvent event) {
-		if(event.getSource() == loadBtn) {  // LOAD
+		
+		// LOAD
+		if(event.getSource() == loadBtn) {  
 			System.out.println("loading");
 			
-			Students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			numAt = Students.size();
+			students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			numAt = students.size();
 			
-			dataLabel.setText("Succesfully loaded " + Students.size() + " students");
+			dataLabel.setText("Succesfully loaded " + students.size() + " students");
 			
-			studentList.getItems().addAll(Students.values());
+			studentTable.getItems().clear();
+			studentTable.setItems(getStudents());
 		}
-		if(event.getSource() == saveBtn) { // SAVE
+		
+		// SAVE
+		if(event.getSource() == saveBtn) { 
 			System.out.println("saving");
 			
-			Data.save(Students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+			Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
 			
-			dataLabel.setText("Succesfully saved " + Students.size() + " students");
+			dataLabel.setText("Succesfully saved " + students.size() + " students");
 			
 			unsaved = false;
 		}
-		if(event.getSource() == addBtn) { // ADD
+		
+		// ADD
+		if(event.getSource() == addBtn) { 
 			String f  = fnameText.getText();
 			String l = lnameText.getText();
 			
@@ -141,7 +166,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 				AlertBox.display(f + " is not a valid first name");
 			}
 			else if(!validName(l)) {
-				AlertBox.display(l + "is not a valid last name");
+				AlertBox.display(l + " is not a valid last name");
 			}
 			else if(l.isBlank() || f.isBlank()) {
 				AlertBox.display("Missing Information");
@@ -150,20 +175,20 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 				Student s = new Student(f, l, numAt);
 				
 				boolean add = true;
-				if(exists(Students, s))
-					add = confirm.display(s.name() + " already exists, add anyway?");
+				if(exists(students, s))
+					add = confirm.display(s.getName() + " already exists, add anyway?");
 				
 				if(add) {
 					numAt++;
 					
 					System.out.println("adding " + s);
-					Students.put(numAt, s);
+					students.put(numAt, s);
 					
 					unsaved = true;
 					
 					dataLabel.setText("Succesfully added " + s);
 					
-					studentList.getItems().add(s);
+					studentTable.getItems().add(s);
 				}
 				
 			}
@@ -200,12 +225,17 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	public boolean exists(Map<String, Student> Students, Student g) {
 		
 		for(Student s : Students.values()) {
-			if(g.name().equals(s.name()))
+			if(g.getName().equals(s.getName()))
 				return true;
 	    }
 		
 		return false;
 	}
 	
-	
+	public ObservableList<Student> getStudents() {
+		ObservableList<Student> out = FXCollections.observableArrayList();
+		out.addAll(students.values());
+		return out;
+		
+	}
 }

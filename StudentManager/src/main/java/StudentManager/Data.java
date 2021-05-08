@@ -55,7 +55,7 @@ public class Data {
 		try {
 		      FileWriter myWriter = new FileWriter(Path);
 		      for(Student s : Students.values()) {
-		    	  myWriter.write(s.getFirst() + " " + s.getLast() + " " + s.getID() + "\n");
+		    	  myWriter.write(s.getFirst() + " " + s.getLast() + " " + s.getId() + "\n");
 		      }
 		      myWriter.close();
 		      System.out.println("Successfully wrote to the file.");
