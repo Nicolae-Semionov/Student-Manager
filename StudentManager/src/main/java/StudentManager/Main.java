@@ -32,6 +32,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	Button loadBtn;
 	Button saveBtn;
 	Button addBtn;
+	Button deleteBtn;
 	
 	TextField fnameText;
 	TextField lnameText;
@@ -65,6 +66,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		loadBtn = new Button("Load");
 		saveBtn = new Button("Save");
 		addBtn = new Button("Add");
+		deleteBtn = new Button("Delete");
 		
 		
 		// TextFields
@@ -94,12 +96,13 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		VBox layout = new VBox(20);
 		layout.setMinSize(400, 200);
 
-		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, studentTable);
+		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, deleteBtn, studentTable);
 		//layout.getChildren().add(saveBtn);
 		
 		loadBtn.setOnAction(this);
 		saveBtn.setOnAction(this);
 		addBtn.setOnAction(this);
+		deleteBtn.setOnAction(this);
 		
 		Scene scene = new Scene(layout, 300, 250);
 		window.setScene(scene);
@@ -108,9 +111,6 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		window.setOnCloseRequest(e -> closeProgram());
 		
-		
-//		Students.add(new Student("Jimmy", "Bones", 345));
-//		Students.add(new Student("Jeff", "Valentine", 355));
 		
 	}
 
@@ -138,12 +138,13 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			System.out.println("loading");
 			
 			students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			numAt = students.size();
+			
 			
 			dataLabel.setText("Succesfully loaded " + students.size() + " students");
 			
 			studentTable.getItems().clear();
 			studentTable.setItems(getStudents());
+			numAt = studentTable.getItems().get(studentTable.getItems().size() - 1).getId() + 1;
 		}
 		
 		// SAVE
@@ -189,9 +190,22 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 					dataLabel.setText("Succesfully added " + s);
 					
 					studentTable.getItems().add(s);
+					
+					fnameText.clear();
+					lnameText.clear();
 				}
 				
 			}
+			
+		}
+		
+		// REMOVE
+		if(event.getSource() == deleteBtn) {
+			
+			Student selected = studentTable.getSelectionModel().getSelectedItem();
+			System.out.println("deleting " + selected.getName());
+			studentTable.getItems().remove(selected);
+			students.remove("" + selected.getId());
 			
 		}
 		
