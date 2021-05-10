@@ -11,6 +11,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -62,6 +66,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		window = primaryStage;
 		window.setTitle("Student Manager");
 		
+		
 		// Buttons
 		loadBtn = new Button("Load");
 		saveBtn = new Button("Save");
@@ -77,6 +82,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		numText = new TextField();
 		numText.setPromptText("student number");
 		
+		
 		// Table 
 		TableColumn<Student, String> firstNameColumn = new TableColumn("First Name");
 		firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("first"));
@@ -90,17 +96,39 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		studentTable.getColumns().addAll(firstNameColumn, lastNameColumn, idColumn);
 		
 		
+		//Menu
+		Menu fileMenu = new Menu("File");
+		MenuItem fileLoad = new MenuItem("Open...");
+		fileLoad.setOnAction(e -> LoadStudents());
+		
+		MenuItem fileSave = new MenuItem("Save");
+		fileSave.setOnAction(e -> SaveStudents());
+		
+		MenuItem fileExit = new MenuItem("Exit");
+		fileExit.setOnAction(e -> closeProgram());
+		
+		
+		fileMenu.getItems().add(new MenuItem("New"));
+		fileMenu.getItems().add(fileLoad);
+		fileMenu.getItems().add(new SeparatorMenuItem());
+		fileMenu.getItems().add(fileSave);
+		fileMenu.getItems().add(new MenuItem("Save As..."));
+		fileMenu.getItems().add(new SeparatorMenuItem());
+		fileMenu.getItems().add(fileExit);
+		
+		MenuBar menuBar = new MenuBar();
+		menuBar.getMenus().addAll(fileMenu);
+		
+		
 		// Layout
 		dataLabel = new Label();
 		
 		VBox layout = new VBox(20);
 		layout.setMinSize(400, 200);
 
-		layout.getChildren().addAll(loadBtn, saveBtn, dataLabel, addBtn, fnameText, lnameText, deleteBtn, studentTable);
-		//layout.getChildren().add(saveBtn);
+		layout.getChildren().addAll(menuBar, dataLabel, addBtn, fnameText, lnameText, deleteBtn, studentTable);
 		
-		loadBtn.setOnAction(this);
-		saveBtn.setOnAction(this);
+		
 		addBtn.setOnAction(this);
 		deleteBtn.setOnAction(this);
 		
@@ -114,17 +142,34 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 	}
 
+	private void SaveStudents() {
+		System.out.println("saving");
+		
+		Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+		
+		dataLabel.setText("Succesfully saved " + students.size() + " students");
+		
+		unsaved = false;
+	}
+
+	private void LoadStudents() {
+		System.out.println("loading");
+		
+		students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+		
+		
+		dataLabel.setText("Succesfully loaded " + students.size() + " students");
+		
+		studentTable.getItems().clear();
+		studentTable.setItems(getStudents());
+		numAt = studentTable.getItems().get(studentTable.getItems().size() - 1).getId() + 1;
+	}
+
 	private void closeProgram() {
 		
 		if(unsaved) {
-			
-			boolean save = confirm.display("You have unsaved changes, save before exiting?");
-			
-			if(save) {
-				System.out.println("saving");
-				Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			}
-			
+			if(confirm.display("You have unsaved changes, save before exiting?")) 
+				SaveStudents();
 		}
 		
 		window.close();
@@ -132,31 +177,6 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 
 	@Override
 	public void handle(ActionEvent event) {
-		
-		// LOAD
-		if(event.getSource() == loadBtn) {  
-			System.out.println("loading");
-			
-			students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			
-			
-			dataLabel.setText("Succesfully loaded " + students.size() + " students");
-			
-			studentTable.getItems().clear();
-			studentTable.setItems(getStudents());
-			numAt = studentTable.getItems().get(studentTable.getItems().size() - 1).getId() + 1;
-		}
-		
-		// SAVE
-		if(event.getSource() == saveBtn) { 
-			System.out.println("saving");
-			
-			Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
-			
-			dataLabel.setText("Succesfully saved " + students.size() + " students");
-			
-			unsaved = false;
-		}
 		
 		// ADD
 		if(event.getSource() == addBtn) { 
@@ -207,6 +227,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			studentTable.getItems().remove(selected);
 			students.remove("" + selected.getId());
 			
+			unsaved = true;
 		}
 		
 	}

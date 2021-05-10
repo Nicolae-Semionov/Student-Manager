@@ -1,7 +1,6 @@
-Eugene Anderson 0
-Hubert McDonald 1
-Billy Bones 2
-Saul Goodman 3
-Justin Herass 4
-Ci Deesnuts 5
-Ben Dover 6
+Ci Deesnuts 0
+Ben Dover 2
+Hubert Mcdonald 3
+Eugene Mcdonald 4
+Dixie Normous 5
+Hugh Geerections 6
