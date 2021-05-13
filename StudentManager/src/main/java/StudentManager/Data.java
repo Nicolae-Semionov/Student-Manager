@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Data {
 
-	public static Map<String, Student> load(String path) {
+	public static Map<String, Student> load(File file) {
 		Map out = new HashMap<String, Student>();
 		
 		int i = 0;
@@ -16,7 +16,6 @@ public class Data {
 		
 		BufferedReader reader;
 		try {
-			File file = new File(path);
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
 			while (line != null) {
@@ -50,10 +49,10 @@ public class Data {
 		return out;
 	}
 	
-	public static void save(Map<String, Student> Students, String Path) {
+	public static void save(Map<String, Student> Students, File file) {
 		
 		try {
-		      FileWriter myWriter = new FileWriter(Path);
+		      FileWriter myWriter = new FileWriter(file);
 		      for(Student s : Students.values()) {
 		    	  myWriter.write(s.getFirst() + " " + s.getLast() + " " + s.getId() + "\n");
 		      }

@@ -1,6 +1,5 @@
 package StudentManager;
 
-import java.io.BufferedReader;
 import java.io.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -21,6 +20,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -33,8 +34,6 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	
 	Stage window;
 	
-	Button loadBtn;
-	Button saveBtn;
 	Button addBtn;
 	Button deleteBtn;
 	
@@ -43,6 +42,9 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 	TextField numText;
 	
 	Label dataLabel;
+	
+	File useFile;
+	MenuItem fileSave;
 	
 	AlertBox alert = new AlertBox();
 	ConfirmBox confirm = new ConfirmBox();
@@ -68,19 +70,27 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		
 		// Buttons
-		loadBtn = new Button("Load");
-		saveBtn = new Button("Save");
 		addBtn = new Button("Add");
+		addBtn.setDisable(true);
 		deleteBtn = new Button("Delete");
+		deleteBtn.setDisable(true);
 		
 		
 		// TextFields
 		fnameText = new TextField();
 		fnameText.setPromptText("first name");
+		fnameText.setDisable(true);
 		lnameText = new TextField();
 		lnameText.setPromptText("last name");
+		lnameText.setDisable(true);
 		numText = new TextField();
 		numText.setPromptText("student number");
+		
+		
+		// FileChooser
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("Text Files", "*.txt"));
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Text Files", "*.txt"));
 		
 		
 		// Table 
@@ -94,25 +104,67 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 		
 		studentTable.getColumns().addAll(firstNameColumn, lastNameColumn, idColumn);
+		studentTable.setDisable(true);
 		
 		
-		//Menu
+		// Menu
 		Menu fileMenu = new Menu("File");
-		MenuItem fileLoad = new MenuItem("Open...");
-		fileLoad.setOnAction(e -> LoadStudents());
 		
-		MenuItem fileSave = new MenuItem("Save");
-		fileSave.setOnAction(e -> SaveStudents());
+		MenuItem fileSaveAs = new MenuItem("Save As...");
+		fileSaveAs.setOnAction(e -> SaveStudents(fileChooser.showSaveDialog(primaryStage)));
+		fileSaveAs.setDisable(true);
+		
+		fileSave = new MenuItem("Save");
+		fileSave.setOnAction(e -> SaveStudents(useFile));
+		fileSave.setDisable(true);
+		
+		MenuItem fileNew = new MenuItem("New");
+		fileNew.setOnAction(e -> {
+			fileSaveAs.setDisable(false);
+			if(unsaved) {
+				if(confirm.display("You have unsaved changes, save before creating new file?")) 
+					if(useFile == null)
+						SaveStudents(fileChooser.showSaveDialog(primaryStage));
+					else
+						SaveStudents(useFile);
+			}
+			addBtn.setDisable(false);
+			deleteBtn.setDisable(false);
+			fnameText.setDisable(false);
+			lnameText.setDisable(false);
+			studentTable.setDisable(false);
+			students.clear();
+			studentTable.getItems().clear();
+		});
+		
+		MenuItem fileLoad = new MenuItem("Open...");
+		fileLoad.setOnAction(e -> {
+			if(unsaved) {
+				if(confirm.display("You have unsaved changes, save before creating new file?")) 
+					if(useFile == null)
+						SaveStudents(fileChooser.showSaveDialog(primaryStage));
+					else
+						SaveStudents(useFile);
+			}
+			useFile = fileChooser.showOpenDialog(primaryStage);
+			LoadStudents(useFile);
+			fileSaveAs.setDisable(false);
+			addBtn.setDisable(false);
+			deleteBtn.setDisable(false);
+			fnameText.setDisable(false);
+			lnameText.setDisable(false);
+			studentTable.setDisable(false);
+		});
 		
 		MenuItem fileExit = new MenuItem("Exit");
 		fileExit.setOnAction(e -> closeProgram());
 		
 		
-		fileMenu.getItems().add(new MenuItem("New"));
+		fileMenu.getItems().add(fileNew);
 		fileMenu.getItems().add(fileLoad);
 		fileMenu.getItems().add(new SeparatorMenuItem());
 		fileMenu.getItems().add(fileSave);
-		fileMenu.getItems().add(new MenuItem("Save As..."));
+		fileMenu.getItems().add(fileSaveAs);
 		fileMenu.getItems().add(new SeparatorMenuItem());
 		fileMenu.getItems().add(fileExit);
 		
@@ -141,21 +193,24 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		
 	}
-
-	private void SaveStudents() {
+	
+	private void SaveStudents(File file) {
 		System.out.println("saving");
 		
-		Data.save(students, "C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+		Data.save(students, file);
 		
 		dataLabel.setText("Succesfully saved " + students.size() + " students");
 		
 		unsaved = false;
+		fileSave.setDisable(true);
 	}
 
-	private void LoadStudents() {
+	private void LoadStudents(File file) {
 		System.out.println("loading");
 		
-		students = Data.load("C:/Users/nicol/git/StudentManager/StudentManager/test.txt");
+		//new File("C:/Users/nicol/git/StudentManager/StudentManager/test.txt")
+		
+		students = Data.load(file);
 		
 		
 		dataLabel.setText("Succesfully loaded " + students.size() + " students");
@@ -169,7 +224,7 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 		
 		if(unsaved) {
 			if(confirm.display("You have unsaved changes, save before exiting?")) 
-				SaveStudents();
+				SaveStudents(useFile);
 		}
 		
 		window.close();
@@ -206,6 +261,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 					students.put(numAt, s);
 					
 					unsaved = true;
+					if(useFile != null)
+						fileSave.setDisable(false);
 					
 					dataLabel.setText("Succesfully added " + s);
 					
@@ -228,6 +285,8 @@ public class Main extends Application implements EventHandler<ActionEvent> {
 			students.remove("" + selected.getId());
 			
 			unsaved = true;
+			if(useFile != null)
+				fileSave.setDisable(false);
 		}
 		
 	}
